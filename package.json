@@ -2,7 +2,7 @@
   "type": "module",
   "scripts": {
     "start": "NODE_ENV=production PORT=433 node server.js",
-    "dev": "NODE_ENV=dev PORT=3000 node server.js",
+    "dev": "NODE_ENV=dev PORT=3000 nodemon server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
@@ -11,5 +11,8 @@
     "morgan": "^1.10.0",
     "validator": "^13.7.0",
     "winston": "^3.8.2"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.19"
   }
 }
