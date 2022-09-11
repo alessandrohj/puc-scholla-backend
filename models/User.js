@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import validator from "validator";
 
 const schema = new mongoose.Schema({
   firstName: {
@@ -23,12 +24,17 @@ const schema = new mongoose.Schema({
     },
     validate: {
       validator: (value) => {
-        //TODO: add validator
+        validator.isEmail(value);
       },
       message: (props) => `${props.value} is not a valid email address.`,
     },
   },
   password: { type: String, trim: true, required: true, maxlength: 70 },
+  role: {
+    type: String,
+    required: true,
+    enum: ['dean', 'admin', 'professor', 'parent', 'student']
+  },
 });
 
 const Model = mongoose.model("User", schema);
