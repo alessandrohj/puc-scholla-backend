@@ -22,9 +22,12 @@ const schema = new mongoose.Schema(
       ref: "Professor",
     },
     assignments: [{ type: mongoose.Schema.Types.ObjectId, ref: "Assignment" }],
-    goals: [{
-        type: mongoose.Schema.Types.ObjectId, ref: "Goal"
-    }]
+    goals: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Goal",
+      },
+    ],
   },
   {
     timestamps: true,
