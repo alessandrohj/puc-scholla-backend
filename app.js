@@ -1,5 +1,7 @@
 import express from "express";
 import morgan from "morgan";
+import cors from 'cors'
+import helmet from 'helmet'
 import sanitizeMongo from "express-mongo-sanitize";
 import logger from "./startup/logger.js";
 import authRouter from "./routes/auth/index.js";
@@ -14,6 +16,8 @@ log.info(process.env.NODE_ENV);
 log.warn(app.get("env")); //if NODE_ENV is undefined, returns development
 
 app.use(morgan("tiny"));
+app.use(cors())
+app.use(helmet())
 app.use(express.json());
 app.use(sanitizeMongo());
 
