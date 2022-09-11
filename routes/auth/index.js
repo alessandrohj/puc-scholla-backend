@@ -1,12 +1,17 @@
 import express from "express";
-import User from "../../models/User.js";
+import {User} from "../../models/index.js";
 import sanitizeBody from "../../middleware/sanitizeBody.js";
+import authenticate from "../../middleware/auth.js";
 
 const router = express.Router();
 
-router.get("/users/me", async (req, res) => {
-  //Route in testing mode with DB.
-  //Need to implement proper authentication
+router.get("/users/me", authenticate, async (req, res) => {
+    const user = await User.findById(req.user._id)
+    if (user) {
+        res.status(200).send({'message': user})
+    } else {
+        res.status(200).send({'message': `user not logged in`})
+    }
 });
 
 router.post("/users", sanitizeBody, async (req, res, next) => {

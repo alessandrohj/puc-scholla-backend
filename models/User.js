@@ -5,6 +5,8 @@ import bcrypt from "bcrypt";
 
 
 const saltRounds = 14;
+const jwtPrivateKey = "mySuperSecretKey";
+//TODO: transform it into env variable
 
 const schema = new mongoose.Schema({
   firstName: {
@@ -44,11 +46,10 @@ const schema = new mongoose.Schema({
 
 schema.methods.generateAuthToken = function () {
 const payload = {user: {_id: this._id}}
-return jwt.sign(payload, 'mySecretKey', {
-  expiresIn: '1h',
+return jwt.sign(payload, jwtPrivateKey, {
+  expiresIn: '3h',
   algorithm: 'HS256',
 })
-//TODO: update it to env variable
 }
 
 schema.statics.authenticate = async function (email, password) {
@@ -65,6 +66,13 @@ schema.pre('save', async function(next) {
 
   this.password = await bcrypt.hash(this.password, saltRounds)
 })
+
+schema.methods.toJSON = function() {
+  const obj = this.toObject()
+  delete obj.password
+  delete obj.__v
+  return obj
+}
 
 const Model = mongoose.model("User", schema);
 

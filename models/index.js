@@ -1,0 +1,5 @@
+export {default as User} from './User.js'
+export {default as Assignment} from './Assignment.js'
+export {default as Class} from './Class.js'
+export {default as Goal} from './Goal.js'
+export {default as Student} from './Student.js'

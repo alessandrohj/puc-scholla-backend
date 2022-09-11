@@ -1,7 +1,7 @@
 import mongoose from "mongoose"
 
-const schema = mongoose.model('User').findOne({role: 'student'})
-const studentSchema = new schema(
+// const schema = mongoose.model('User').findOne({role: 'student'})
+const schema = new mongoose.Schema(
     {
         student: {
             type: mongoose.Schema.Types.ObjectId, ref: 'User', 
@@ -22,6 +22,6 @@ const studentSchema = new schema(
     },
 )
 
-const Model = mongoose.model('Student', studentSchema)
+const Model = mongoose.model('Student', schema)
 
 export default Model
