@@ -1,8 +1,8 @@
 import mongoose from "mongoose";
 import validator from "validator";
-import jwt from 'jsonwebtoken'
+import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
-
+import uniqueValidator from "mongoose-unique-validator";
 
 const saltRounds = 14;
 const jwtPrivateKey = "mySuperSecretKey";
@@ -40,17 +40,21 @@ const schema = new mongoose.Schema({
   role: {
     type: String,
     required: true,
-    enum: ['dean', 'admin', 'professor', 'parent', 'student']
+    enum: ["dean", "admin", "professor", "parent", "student"],
   },
-});
+},
+{
+  timestamps: true
+}
+);
 
 schema.methods.generateAuthToken = function () {
-const payload = {user: {_id: this._id}}
-return jwt.sign(payload, jwtPrivateKey, {
-  expiresIn: '3h',
-  algorithm: 'HS256',
-})
-}
+  const payload = { uid: this._id };
+  return jwt.sign(payload, jwtPrivateKey, {
+    expiresIn: "3h",
+    algorithm: "HS256",
+  });
+};
 
 schema.statics.authenticate = async function (email, password) {
   const user = await this.findOne({ email: email });
@@ -58,21 +62,31 @@ schema.statics.authenticate = async function (email, password) {
   const hashedPassword = user ? user.password : badHash;
   const passwordMatch = await bcrypt.compare(password, hashedPassword);
 
-  return passwordMatch ? user : null
-}
+  return passwordMatch ? user : null;
+};
 
-schema.pre('save', async function(next) {
-  if (!this.isModified('password')) return next()
+schema.pre("save", async function (next) {
+  if (!this.isModified("password")) return next();
 
-  this.password = await bcrypt.hash(this.password, saltRounds)
-})
+  this.password = await bcrypt.hash(this.password, saltRounds);
+});
 
-schema.methods.toJSON = function() {
-  const obj = this.toObject()
-  delete obj.password
-  delete obj.__v
-  return obj
-}
+schema.methods.toJSON = function () {
+  const obj = this.toObject();
+  delete obj.password;
+  delete obj.__v;
+  return obj;
+};
+
+schema.plugin(uniqueValidator, {
+  message: function (props) {
+    if (props.path === "email") {
+      return `The email address ${props.value} is already registered`;
+    } else {
+      return `The ${props.path} must be unique. ${props.path} is already in use.`;
+    }
+  },
+});
 
 const Model = mongoose.model("User", schema);
 
