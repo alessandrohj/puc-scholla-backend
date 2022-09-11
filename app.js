@@ -1,7 +1,7 @@
 import express from 'express'
 import morgan from 'morgan'
 import logger from './startup/logger.js'
-import authRouter from './routes/authRouter.js'
+import authRouter from './routes/auth/index.js'
 import database from './startup/database.js'
 
 const app = express()

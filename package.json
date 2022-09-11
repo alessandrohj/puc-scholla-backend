@@ -1,5 +1,10 @@
 {
   "type": "module",
+  "scripts": {
+    "start": "NODE_ENV=production PORT=433 node server.js",
+    "dev": "NODE_ENV=dev PORT=3000 node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
   "dependencies": {
     "express": "^4.18.1",
     "mongoose": "^6.6.0",
