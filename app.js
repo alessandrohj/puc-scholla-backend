@@ -1,4 +1,5 @@
 import express from 'express'
+import morgan from 'morgan'
 import logger from './startup/logger.js'
 import authRouter from './routes/authRouter.js'
 
@@ -8,6 +9,7 @@ const log = logger.child({module: 'scholla:app'})
 log.info(process.env.NODE_ENV)
 log.warn(app.get('env')) //if NODE_ENV is undefined, returns development
 
+app.use(morgan('tiny'))
 app.use(express.json())
 
 app.get('/', (req, res) => {

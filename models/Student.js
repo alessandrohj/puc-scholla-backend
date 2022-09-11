@@ -1,8 +1,17 @@
 import mongoose from "mongoose"
 
-const schema = new mongoose.Schema(
+const schema = mongoose.model('User').findOne({role: 'student'})
+const studentSchema = new schema(
     {
-        parent: [{
+        student: {
+            type: mongoose.Schema.Types.ObjectId, ref: 'User', 
+            required: true,
+        },
+        studentId: {
+            type: Number,
+            required: false
+        },
+        sharedWith: [{
             type: mongoose.Schema.Types.ObjectId, ref: 'Parent',
             required: true,
         }],
@@ -13,6 +22,6 @@ const schema = new mongoose.Schema(
     },
 )
 
-const Model = mongoose.model('Student', schema)
+const Model = mongoose.model('Student', studentSchema)
 
 export default Model
