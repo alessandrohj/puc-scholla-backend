@@ -2,9 +2,11 @@ import express from 'express'
 import morgan from 'morgan'
 import logger from './startup/logger.js'
 import authRouter from './routes/authRouter.js'
+import database from './startup/database.js'
 
 const app = express()
 const log = logger.child({module: 'scholla:app'})
+database()
 
 log.info(process.env.NODE_ENV)
 log.warn(app.get('env')) //if NODE_ENV is undefined, returns development
