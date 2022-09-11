@@ -1,5 +1,6 @@
 import express from 'express'
 import morgan from 'morgan'
+import sanitizeMongo from 'express-mongo-sanitize'
 import logger from './startup/logger.js'
 import authRouter from './routes/auth/index.js'
 import database from './startup/database.js'
@@ -13,6 +14,7 @@ log.warn(app.get('env')) //if NODE_ENV is undefined, returns development
 
 app.use(morgan('tiny'))
 app.use(express.json())
+app.use(sanitizeMongo())
 
 app.get('/', (req, res) => {
     res.send({data: {healthStatus: 'Running'}})
