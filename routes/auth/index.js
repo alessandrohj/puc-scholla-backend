@@ -1,5 +1,6 @@
 import express from 'express'
 import User from '../../models/User.js'
+import sanitizeBody from '../../middleware/sanitizeBody.js'
 
 const router = express.Router()
 
@@ -15,8 +16,8 @@ router.get('/users/me', async (req, res) => {
     }
 
 })
-router.post('/users', async (req, res, next) => {
-    new User(req.body)
+router.post('/users', sanitizeBody, async (req, res, next) => {
+    new User(req.sanitizedBody)
     .save()
     .then((newUser) => res.status(201).send({message: 'New user created', data: newUser}))
     .catch(next)
