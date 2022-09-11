@@ -26,9 +26,9 @@ const schema = new mongoose.Schema(
             required: true,
         }],
         professors: [{
-            type: mongoose.Schema.Types.ObjectId, ref: 'Professors',
+            type: mongoose.Schema.Types.ObjectId, ref: 'Professor',
             required: true,
-        }]
+        }],
     },
     {
         timestamps: true
