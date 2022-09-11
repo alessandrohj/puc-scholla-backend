@@ -22,16 +22,14 @@ const schema = mongoose.Schema(
       type: mongoose.Schema.Types.Mixed,
       required: true,
     },
-    student: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Student",
-      required: true,
+    notes: {
+      type: String,
+      required: false
     },
-    class: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Class",
-      required: true,
-    },
+    file: {
+      type: Buffer,
+      required: false
+    }
   },
   {
     timestamps: true,
