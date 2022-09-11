@@ -1,5 +1,4 @@
 import xss from 'xss'
-import debug from 'debug'
 
 
 const stripTags = (payload) => {
@@ -31,7 +30,6 @@ const sanitize = (sourceString) => {
 export default function sanitizeBody (req, res, next) {
     const {id, _id, ...attributes} = req.body
     const sanitizedBody = stripTags(attributes)
-    debug({sanitizedBody: attributes})
     req.sanitizedBody = sanitizedBody
     next()
 }
