@@ -2,26 +2,26 @@ import express from "express";
 import {User} from "../../models/index.js";
 import sanitizeBody from "../../middleware/sanitizeBody.js";
 import authenticate from "../../middleware/auth.js";
+import logger from "../../startup/logger.js";
 
 const router = express.Router();
 
 router.get("/users/me", authenticate, async (req, res) => {
     const user = await User.findById(req.user._id)
-    if (user) {
-        res.status(200).send({'message': user})
-    } else {
-        res.status(200).send({'message': `user not logged in`})
-    }
+   res.status(200).send({data: user})
 });
 
 router.post("/users", sanitizeBody, async (req, res, next) => {
-  const newUser = new User(req.sanitizedBody);
-  await newUser
+  try {
+    new User(req.sanitizedBody)
     .save()
     .then((newUser) =>
       res.status(201).send({ message: "New user created", data: newUser })
     )
-    .catch(next);
+  } catch (err) {
+    logger.error(err)
+    next(err)
+  }
 });
 
 router.post("/tokens", sanitizeBody, async (req, res) => {
@@ -39,7 +39,18 @@ router.post("/tokens", sanitizeBody, async (req, res) => {
     });
   }
 
-  res.status(201).send({ token: user.generateAuthToken() });
+  res.status(201).send({ data:{ token: user.generateAuthToken() }});
 });
+
+router.patch("/users/me", authenticate, sanitizeBody, async (req, res) => {
+  const {email, password} = req.sanitizedBody
+  await User.findOne({_id: req.user_id}, function (err, doc) {
+    if(err) res.status(400).send({title: 'Invalid request', message: "Password was not changed"})
+    doc.password = password
+    doc.save()
+  })
+
+  res.send(200).send({message: 'Password successfully changed'})
+})
 
 export default router;
