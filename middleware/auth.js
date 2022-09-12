@@ -2,14 +2,14 @@ import jwt from "jsonwebtoken";
 
 const jwtPrivateKey = "mySuperSecretKey"; //TODO: transform it into env variable
 
-function parseToken(headerValue) {
+const parseToken = function (headerValue) {
   if (headerValue) {
-    const [type, token] = headerValue.split(" ");
-    if (type === "Bearer" && typeof token !== "undefined") {
-      return token;
+    const [type, token] = headerValue.split(' ')
+    if (type === 'Bearer' && typeof token !== 'undefined') {
+      return token
     }
   }
-  return undefined;
+  return undefined
 }
 
 export default function (req, res, next) {
@@ -21,8 +21,9 @@ export default function (req, res, next) {
   }
 
   try {
-    const payload = jwt.verify(token, jwtPrivateKey, { algorithms: ["HS256"] });
-    req.user = payload.user;
+    const payload = jwt.verify(token, jwtPrivateKey, {algorithms: ['HS256']});
+    req.user = { _id: payload.uid };
+
     next();
   } catch (err) {
     res.status(400).json({

@@ -50,10 +50,8 @@ const schema = new mongoose.Schema({
 
 schema.methods.generateAuthToken = function () {
   const payload = { uid: this._id };
-  return jwt.sign(payload, jwtPrivateKey, {
-    expiresIn: "3h",
-    algorithm: "HS256",
-  });
+  console.log(payload)
+  return jwt.sign(payload, jwtPrivateKey, {expiresIn: '1h', algorithm: 'HS256'});
 };
 
 schema.statics.authenticate = async function (email, password) {

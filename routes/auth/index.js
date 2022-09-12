@@ -1,13 +1,13 @@
+import authenticate from "../../middleware/auth.js";
 import express from "express";
 import {User} from "../../models/index.js";
 import sanitizeBody from "../../middleware/sanitizeBody.js";
-import authenticate from "../../middleware/auth.js";
 import logger from "../../startup/logger.js";
 
 const router = express.Router();
 
 router.get("/users/me", authenticate, async (req, res) => {
-    const user = await User.findById(req.user._id)
+  const user = await User.findById(req.user._id)
    res.status(200).send({data: user})
 });
 
@@ -44,13 +44,14 @@ router.post("/tokens", sanitizeBody, async (req, res) => {
 
 router.patch("/users/me", authenticate, sanitizeBody, async (req, res) => {
   const {email, password} = req.sanitizedBody
-  await User.findOne({_id: req.user_id}, function (err, doc) {
-    if(err) res.status(400).send({title: 'Invalid request', message: "Password was not changed"})
-    doc.password = password
-    doc.save()
+  const doc = await User.findById(req.user._id)
+  doc.password = password
+  doc.save().then((savedDoc) => {
+    res.status(200).send({message: 'Password successfully changed', user: savedDoc})
+  }).catch(err => {
+    res.status(400).send({title: "Error", message: 'Password was not changed.', err})
   })
 
-  res.send(200).send({message: 'Password successfully changed'})
 })
 
 export default router;
