@@ -5,6 +5,7 @@ import helmet from 'helmet'
 import sanitizeMongo from "express-mongo-sanitize";
 import logger from "./startup/logger.js";
 import authRouter from "./routes/auth/index.js";
+import classRouter from "./routes/class.js";
 import database from "./startup/database.js";
 import handleErrors from "./middleware/handleErrors.js";
 
@@ -25,6 +26,7 @@ app.get("/", (req, res) => {
   res.send({ data: { healthStatus: "Running" } });
 });
 app.use("/auth", authRouter);
+app.use("/class", classRouter)
 
 // error handler middleware
 app.use(handleErrors);
