@@ -9,7 +9,7 @@ const schema = new mongoose.Schema(
     },
     classCode: {
       type: mongoose.Schema.Types.Mixed,
-      required: false,
+      required: true,
     },
     students: [
       {
@@ -28,6 +28,10 @@ const schema = new mongoose.Schema(
         ref: "Goal",
       },
     ],
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId, ref: 'User',
+      required: true
+    }
   },
   {
     timestamps: true,
