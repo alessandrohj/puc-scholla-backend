@@ -42,6 +42,10 @@ const schema = new mongoose.Schema({
     required: true,
     enum: ["dean", "admin", "professor", "parent", "student"],
   },
+  school: {
+    type: mongoose.Schema.Types.ObjectId, ref: 'School',
+    required: true,
+  }
 },
 {
   timestamps: true
