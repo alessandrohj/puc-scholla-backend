@@ -50,7 +50,6 @@ const schema = new mongoose.Schema({
 
 schema.methods.generateAuthToken = function () {
   const payload = { uid: this._id };
-  console.log(payload)
   return jwt.sign(payload, jwtPrivateKey, {expiresIn: '1h', algorithm: 'HS256'});
 };
 
@@ -62,6 +61,12 @@ schema.statics.authenticate = async function (email, password) {
 
   return passwordMatch ? user : null;
 };
+
+schema.statics.canCreateClass = async function (id) {
+  const user = await this.findById(id);
+  const hasAccess = user.role === 'admin' || 'dean' ? true : false 
+  return {user: user, hasAccess: hasAccess}
+}
 
 schema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
