@@ -70,6 +70,10 @@ router.delete("/:id", authenticate, async (req, res) => {
 const update =
   (overwrite = false) =>
   async (req, res) => {
+    const { hasAccess } = await User.canCreateClass(req.user._id);
+    if (!hasAccess) {
+      handleError("Unauthorized access");
+    }
     try {
       const document = await Class.findByIdAndUpdate(
         req.params.id,
