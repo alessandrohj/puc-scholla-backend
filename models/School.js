@@ -38,6 +38,10 @@ const schema = new mongoose.Schema({
       required: true,
     },
   ],
+  expire: {
+    type: Date,
+    required: true
+  }
 });
 
 
