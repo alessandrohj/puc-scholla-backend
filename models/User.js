@@ -44,7 +44,7 @@ const schema = new mongoose.Schema({
   },
   school: {
     type: mongoose.Schema.Types.ObjectId, ref: 'School',
-    required: true,
+    required: false,
   }
 },
 {
@@ -69,6 +69,12 @@ schema.statics.authenticate = async function (email, password) {
 schema.statics.canCreateClass = async function (id) {
   const user = await this.findById(id);
   const hasAccess = user.role === 'admin' || 'dean' ? true : false 
+  return {user: user, hasAccess: hasAccess}
+}
+
+schema.statics.hasTotalAccess = async  function (id) {
+  const user = await this.findById(id);
+  const hasAccess = user.role === 'owner' ? true : false 
   return {user: user, hasAccess: hasAccess}
 }
 
