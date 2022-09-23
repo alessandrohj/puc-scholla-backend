@@ -3,6 +3,7 @@ import validator from "validator";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import uniqueValidator from "mongoose-unique-validator";
+import {School} from './index.js'
 
 const saltRounds = 14;
 const jwtPrivateKey = "mySuperSecretKey";
@@ -45,6 +46,10 @@ const schema = new mongoose.Schema({
   school: {
     type: mongoose.Schema.Types.ObjectId, ref: 'School',
     required: false,
+  },
+  schoolId: {
+    type: mongoose.Schema.Types.Mixed,
+    required: true
   }
 },
 {
@@ -83,6 +88,13 @@ schema.pre("save", async function (next) {
 
   this.password = await bcrypt.hash(this.password, saltRounds);
 });
+
+schema.pre("validate", async function(next) {
+  const schoolUser = await School.findById(this.school._id).findOne({schoolId: this.schoolId})
+  if (!schoolUser)  return 'Invalid school id';
+  next()
+
+})
 
 schema.methods.toJSON = function () {
   const obj = this.toObject();
