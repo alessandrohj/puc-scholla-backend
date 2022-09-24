@@ -29,7 +29,7 @@ const schema = mongoose.Schema(
     file: {
       type: Buffer,
       required: false
-    }
+    },
   },
   {
     timestamps: true,
