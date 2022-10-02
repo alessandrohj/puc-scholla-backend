@@ -31,7 +31,15 @@ router.get("/list", async (req, res) => {
     );
   });
 
-  router.delete("/:id", authenticate, async (req, res) => {
+  router.get("/:name", async (req, res) => {
+    const { name } = req.params;
+    console.log(name)
+      await School.find({ name: {"$regex": name, "$options": "i"} }).then((schools) =>
+      res.status(200).send({ data: schools })
+    );
+  })
+
+router.delete("/:id", authenticate, async (req, res) => {
     const { hasAccess } = await User.hasTotalAccess(req.user._id);
     if (!hasAccess) {
       handleError("Unauthorized access");
