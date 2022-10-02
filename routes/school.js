@@ -1,16 +1,18 @@
 import authenticate from '../middleware/auth.js';
 import express from 'express';
-import logger from '../startup/logger';
+import logger from '../startup/logger.js';
 import sanitizeBody from '../middleware/sanitizeBody.js';
+import handleError from "../middleware/handleErrors.js";
 import { User, School } from '../models/index.js';
 
 
 const router = express.Router();
 
-router.post('/list', authenticate, sanitizeBody, async (req, res) => {
+router.post('/', authenticate, sanitizeBody, async (req, res) => {
  const {user, hasAccess} = await User.hasTotalAccess(req.user._id)
  if (!hasAccess) {
-   handleError("Unauthorized access");
+  //  handleError("Unauthorized access");
+  res.status(404).send({ message: "No access to create schools" });
  }
  try {
    const newSchool = new School(req.sanitizedBody);
@@ -23,7 +25,7 @@ router.post('/list', authenticate, sanitizeBody, async (req, res) => {
  }
 });
 
-router.get("/", async (req, res) => {
+router.get("/list", async (req, res) => {
     await School.find({}).then((schoolList) =>
       res.status(200).send({ data: schoolList })
     );
@@ -76,3 +78,5 @@ router.get("/", async (req, res) => {
   };
 router.put("/:id", authenticate, sanitizeBody, update(true));
 router.patch("/:id", authenticate, sanitizeBody, update(false));
+
+export default router;

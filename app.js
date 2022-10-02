@@ -6,6 +6,7 @@ import sanitizeMongo from "express-mongo-sanitize";
 import logger from "./startup/logger.js";
 import authRouter from "./routes/auth/index.js";
 import classRouter from "./routes/class.js";
+import schoolRouter from "./routes/school.js";
 import schoolUsersRouter from "./routes/internal.js";
 import database from "./startup/database.js";
 import handleErrors from "./middleware/handleErrors.js";
@@ -29,6 +30,7 @@ app.get("/", (req, res) => {
 app.use("/auth", authRouter);
 app.use("/class", classRouter)
 app.use("/school/users", schoolUsersRouter)
+app.use("/schools", schoolRouter)
 
 // error handler middleware
 app.use(handleErrors);

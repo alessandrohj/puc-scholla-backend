@@ -8,44 +8,50 @@ const schema = new mongoose.Schema({
   dean: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
-    required: true,
+    required: false,
   },
   admins: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true,
+      required: false,
     },
   ],
   professors: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true,
+      required: false,
     },
   ],
   students: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true,
+      required: false,
     },
   ],
   classes: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Class",
-      required: true,
+      required: false,
     },
   ],
   expire: {
     type: Date,
-    required: true
+    required: false
   }
 },
 {
   timestamps: true
 });
+
+schema.methods.toJSON = function () {
+  const obj = this.toObject();
+  delete obj.__v;
+  return obj;
+};
 
 
 const Model = mongoose.model('School', schema)

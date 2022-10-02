@@ -41,7 +41,7 @@ const schema = new mongoose.Schema({
   role: {
     type: String,
     required: true,
-    enum: ["dean", "admin", "professor", "parent", "student"],
+    enum: ["dean", "admin", "professor", "parent", "student", "super"],
   },
   school: {
     type: mongoose.Schema.Types.ObjectId, ref: 'School',
@@ -49,7 +49,7 @@ const schema = new mongoose.Schema({
   },
   schoolId: {
     type: mongoose.Schema.Types.Mixed,
-    required: true
+    required: false
   }
 },
 {
@@ -79,7 +79,7 @@ schema.statics.canCreateClass = async function (id) {
 
 schema.statics.hasTotalAccess = async  function (id) {
   const user = await this.findById(id);
-  const hasAccess = user.role === 'owner' ? true : false 
+  const hasAccess = user.role === 'super' ? true : false 
   return {user: user, hasAccess: hasAccess}
 }
 
@@ -89,17 +89,18 @@ schema.pre("save", async function (next) {
   this.password = await bcrypt.hash(this.password, saltRounds);
 });
 
-schema.pre("validate", async function(next) {
-  const schoolUser = await School.findById(this.school._id).findOne({schoolId: this.schoolId})
-  if (!schoolUser)  return 'Invalid school id';
-  next()
+// schema.pre("validate", async function(next) {
+//   const schoolUser = await School.findById(this.school._id).findOne({schoolId: this.schoolId})
+//   if (!schoolUser)  return 'Invalid school id';
+//   next()
 
-})
+// })
 
 schema.methods.toJSON = function () {
   const obj = this.toObject();
   delete obj.password;
   delete obj.__v;
+  delete obj.role;
   return obj;
 };
 
