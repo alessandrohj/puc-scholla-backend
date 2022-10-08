@@ -3,7 +3,6 @@ import validator from "validator";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import uniqueValidator from "mongoose-unique-validator";
-import {School} from './index.js'
 
 const saltRounds = 14;
 const jwtPrivateKey = "mySuperSecretKey";
@@ -47,10 +46,6 @@ const schema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId, ref: 'School',
     required: false,
   },
-  schoolId: {
-    type: mongoose.Schema.Types.Mixed,
-    required: false
-  }
 },
 {
   timestamps: true
@@ -74,7 +69,7 @@ schema.statics.authenticate = async function (email, password) {
 schema.statics.canCreateClass = async function (id) {
   const user = await this.findById(id);
   const hasAccess = user.role === 'admin' || 'dean' ? true : false 
-  return {user: user, hasAccess: hasAccess}
+  return {user: user, hasAccess: hasAccess, school: user.school}
 }
 
 schema.statics.hasTotalAccess = async  function (id) {

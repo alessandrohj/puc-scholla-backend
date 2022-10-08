@@ -14,6 +14,10 @@ const schema = new mongoose.Schema({
     maxlength: 64,
     trim: true,
   },
+  school: {
+    type: mongoose.Schema.Types.ObjectId, ref: 'School',
+    required: true,
+  },
   schoolId: {
     type: mongoose.Schema.Types.Mixed,
     required: true,

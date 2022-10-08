@@ -2,17 +2,30 @@ import authenticate from "../middleware/auth.js";
 import express from "express";
 import { Internal, User } from "../models/index.js";
 import sanitizeBody from "../middleware/sanitizeBody.js";
+import logger from "../startup/logger.js";
 
 const router = express.Router()
 
 
 router.post("/new", authenticate, sanitizeBody, async (req, res, next) => {
-    const { hasAccess } = await User.canCreateClass(req.user._id);
+    const { hasAccess, school } = await User.canCreateClass(req.user._id);
     if (!hasAccess) {
       return res.status(400).send({ message: "User doe not have access" });
     }
+    if (!school) {
+      return res.status(400).send({ message: "User not associated with any school. Please contact your school administrator." });
+    }
     try {
-        new Internal(req.sanitizedBody)
+      const { firstName, lastName, isProfessor, isStudent, schoolId, ...rest } = req.sanitizedBody;
+        new Internal({
+          firstName: firstName,
+          lastName: lastName,
+          isProfessor: isProfessor,
+          isStudent: isStudent,
+          school: school,
+          schoolId: schoolId,
+          ...rest,
+        })
         .save()
         .then((newUser) =>
         res.status(201).send({ message: "New user added to the system.", data: newUser })
