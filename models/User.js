@@ -26,7 +26,7 @@ const schema = new mongoose.Schema({
     type: String,
     required: true,
     unique: true,
-    maxlength: 512,
+    maxlength: 70,
     set: function (value) {
       return value.toLowerCase();
     },
