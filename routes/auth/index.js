@@ -14,7 +14,7 @@ router.get("/users/me", authenticate, async (req, res) => {
 router.post("/users", sanitizeBody, async (req, res, next) => {
   const {role} = req.sanitizedBody;
   if (role === "super" || role === "admin" || role === "dean") {
-    res.status(404).send({message: "You cannot create a super user"});
+    res.status(404).send({message: "No access to create users with this role"});  
   } else {
   try {
     new User(req.sanitizedBody)
@@ -28,26 +28,6 @@ router.post("/users", sanitizeBody, async (req, res, next) => {
   }
 }
 });
-
-router.post("/admin/users", sanitizeBody, authenticate, async (req, res, next) => {
-  const { hasAccess } = await User.hasTotalAccess(req.user._id);
-  if (!hasAccess) {
-    res.status(404).send({ message: "No access to create admins" });
-  } else {
-  
-  try {
-    new User(req.sanitizedBody)
-    .save()
-    .then((newUser) =>
-      res.status(201).send({ message: "New user created", data: newUser })
-    )
-  } catch (err) {
-    logger.error(err)
-    next(err)
-  }
-}
-});
-
 router.post("/tokens", sanitizeBody, async (req, res) => {
   const { email, password } = req.sanitizedBody;
   const user = await User.authenticate(email, password);
