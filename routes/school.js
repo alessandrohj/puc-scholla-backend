@@ -33,9 +33,16 @@ router.get("/list", async (req, res) => {
 
   router.get("/:name", async (req, res) => {
     const { name } = req.params;
-    console.log(name)
-      await School.find({ name: {"$regex": name, "$options": "i"} }).then((schools) =>
-      res.status(200).send({ data: schools })
+      await School.find({ name: {"$regex": name, "$options": "i"} }).then((school) =>
+      res.status(200).send({ data: school })
+    );
+  })
+
+
+  router.get("/:id", async (req, res) => {
+    const { id } = req.params;
+      await School.findById(id).then((school) =>
+      res.status(200).send({ data: school })
     );
   })
 
