@@ -3,88 +3,118 @@ import express from "express";
 import { Internal, User } from "../models/index.js";
 import sanitizeBody from "../middleware/sanitizeBody.js";
 import logger from "../startup/logger.js";
+import handleError from "../middleware/handleErrors.js";
 
-const router = express.Router()
-
+const router = express.Router();
 
 router.post("/new", authenticate, sanitizeBody, async (req, res, next) => {
-    const { hasAccess, school } = await User.canCreateClass(req.user._id);
-    if (!hasAccess) {
-      return res.status(400).send({ message: "User doe not have access" });
-    }
-    if (!school) {
-      return res.status(400).send({ message: "User not associated with any school. Please contact your school administrator." });
-    }
-    try {
-      const { firstName, lastName, isProfessor, isStudent, schoolId, ...rest } = req.sanitizedBody;
-        new Internal({
-          firstName: firstName,
-          lastName: lastName,
-          isProfessor: isProfessor,
-          isStudent: isStudent,
-          school: school,
-          schoolId: schoolId,
-          ...rest,
-        })
-        .save()
-        .then((newUser) =>
-        res.status(201).send({ message: "New user added to the system.", data: newUser })
-      )
+  const { hasAccess, school } = await User.canCreateClass(req.user._id);
+  if (!hasAccess) {
+    return res.status(400).send({ message: "User doe not have access" });
+  }
+  if (!school) {
+    return res
+      .status(400)
+      .send({
+        message:
+          "User not associated with any school. Please contact your school administrator.",
+      });
+  }
+  try {
+    const { firstName, lastName, isProfessor, isStudent, schoolId, ...rest } =
+      req.sanitizedBody;
+    new Internal({
+      firstName: firstName,
+      lastName: lastName,
+      isProfessor: isProfessor,
+      isStudent: isStudent,
+      school: school,
+      schoolId: schoolId,
+      ...rest,
+    })
+      .save()
+      .then((newUser) =>
+        res
+          .status(201)
+          .send({ message: "New user added to the system.", data: newUser })
+      );
+  } catch (err) {
+    logger.error(err);
+    next(err);
+  }
+});
 
-    } catch(err) {
-        logger.error(err)
-        next(err)
-    }
-})
-
-router.get("/", authenticate, sanitizeBody, async (req, res) => {
-    const { hasAccess } = await User.canCreateClass(req.user._id);
-    if (!hasAccess) {
-      return res.status(400).send({ message: "User doe not have access" });
-    }
-    await Internal.find({}).then((internalUsers) =>
-      res.status(200).send({ data: internalUsers })
-    );
-  });
-
-  router.get("/:id", authenticate, async (req, res) => {
-    const { hasAccess } = await User.canCreateClass(req.user._id);
-    if (!hasAccess) {
-      return res.status(400).send({ message: "User doe not have access" });
-    }
-    try {
-      const internalUser = await Internal.findById(req.params.id);
-      if (!internalUser) throw new ResourceNotFoundException("Class not found");
+router.get("/all", authenticate, async (req, res) => {
   
-      res.status(200).send({ status: "Request completed", data: internalUser });
-    } catch (err) {
-      logger.error(err);
-      handleError(err);
-    }
-  });
+  const { hasAccess, school } = await User.canCreateClass(req.user._id);
+  if (!hasAccess) {
+    return res.status(400).send({ message: "User doe not have access" });
+  }
+  if (!school) {
+    return res
+      .status(400)
+      .send({
+        message:
+          "User not associated with any school. Please contact your school administrator.",
+      });
+  }
+  const users = await Internal.find({ school: school });
+  res.status(200).send({ data: users });
+}); 
 
-  router.delete("/:id", authenticate, async (req, res) => {
-    const { hasAccess } = await User.canCreateClass(req.user._id);
-    if (!hasAccess) {
-      handleError("Unauthorized access");
-    }
+router.get("/:role", authenticate, async (req, res) => {
+  const { hasAccess, school } = await User.canCreateClass(req.user._id);
+  if (!hasAccess || !school) {
+    return res.status(400).send({ message: "User doe not have access" });
+  }
+    const { role } = req.params;
+
     try {
-      const document = await Internal.findByIdAndDelete(req.params.id);
-      if (!document) throw new ResourceNotFoundException("Resource not found");
-  
-      res
-        .status(200)
-        .send({
-          status: "Deleted",
-          message: `User ${document.name} was deleted`,
-        });
+      const users = await Internal.find({ school: school, role: role });
+      res.status(200).send({ data: users });
     } catch (err) {
-      logger.error(err);
-      handleError(err);
+      logger.error(err)
+      handleError(err)
+      // next(err)
     }
-  });
+});
 
-  const update =
+router.get("/:id", authenticate, async (req, res) => {
+  const { hasAccess } = await User.canCreateClass(req.user._id);
+  if (!hasAccess) {
+    return res.status(400).send({ message: "User doe not have access" });
+  }
+  try {
+    const internalUser = await Internal.findById(req.params.id);
+    if (!internalUser) throw new ResourceNotFoundException("Class not found");
+
+    res.status(200).send({ status: "Request completed", data: internalUser });
+  } catch (err) {
+    logger.error(err);
+    handleError(err);
+  }
+});
+
+router.delete("/:id", authenticate, async (req, res) => {
+  const { hasAccess } = await User.canCreateClass(req.user._id);
+  if (!hasAccess) {
+    handleError("Unauthorized access");
+  }
+  try {
+    const document = await Internal.findByIdAndDelete(req.params.id);
+    if (!document) throw new ResourceNotFoundException("Resource not found");
+
+    res.status(200).send({
+      status: "Deleted",
+      message: `User ${document.name} was deleted`,
+    });
+  } catch (err) {
+    logger.error(err);
+    handleError(err);
+  }
+});
+
+const update =
   (overwrite = false) =>
   async (req, res) => {
     const { hasAccess } = await User.canCreateClass(req.user._id);
@@ -110,5 +140,4 @@ router.get("/", authenticate, sanitizeBody, async (req, res) => {
 router.put("/:id", authenticate, sanitizeBody, update(true));
 router.patch("/:id", authenticate, sanitizeBody, update(false));
 
-
-export default router
+export default router;

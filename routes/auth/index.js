@@ -12,12 +12,12 @@ router.get("/users/me", authenticate, async (req, res) => {
 });
 
 router.post("/users", sanitizeBody, async (req, res, next) => {
-  const {role, schoolId, ...data} = req.sanitizedBody;
+  const {role, schoolId, school, ...data} = req.sanitizedBody;
   if (role === "super" || role === "admin" || role === "dean") {
     res.status(404).send({message: "No access to create users with this role"});  
   } else {
   try {
-    const internalUser = await Internal.findOne({schoolId: schoolId})
+    const internalUser = await Internal.findOne({school: school, schoolId: schoolId})
 
     if (!internalUser || internalUser.role !== role) {
       res.status(404).send({message: "User not found"})
@@ -25,7 +25,7 @@ router.post("/users", sanitizeBody, async (req, res, next) => {
     new User({
       firstName: internalUser.firstName,
       lastName: internalUser.lastName,
-      schoolId: internalUser.schoolId,
+      schoolId: internalUser.id,
       school: internalUser.school,
       role: internalUser.role,
       ...data
