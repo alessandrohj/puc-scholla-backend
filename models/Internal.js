@@ -22,13 +22,10 @@ const schema = new mongoose.Schema({
     type: mongoose.Schema.Types.Mixed,
     required: true,
   },
-  isProfessor: {
-    type: Boolean,
-    required: true
-  },
-  isStudent: {
-    type: Boolean,
-    required: true
+  role: {
+    type: String,
+    required: true,
+    enum: [ "admin", "professor", "parent", "student"],
   },
   studentUser: {
     type: mongoose.Schema.Types.ObjectId,
@@ -50,6 +47,15 @@ const schema = new mongoose.Schema({
     },
   ],
 });
+
+schema.methods.toJSON = function () {
+  const obj = this.toObject();
+  delete obj.password;
+  delete obj._id;
+  delete obj.__v;
+  delete obj.role;
+  return obj;
+};
 
 const Model = mongoose.model("Internal", schema);
 
