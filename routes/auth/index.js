@@ -17,7 +17,7 @@ router.post("/users", sanitizeBody, async (req, res, next) => {
     res.status(404).send({message: "No access to create users with this role"});  
   } else {
   try {
-    const internalUser = await Internal.findOne({school: school, schoolId: schoolId})
+    const internalUser = await Internal.findOne({school: school, schoolId: schoolId}).populate('school').populate('schoolId');
 
     if (!internalUser || internalUser.role !== role) {
       res.status(404).send({message: "User not found"})
