@@ -1,6 +1,6 @@
 import authenticate from "../../middleware/auth.js";
 import express from "express";
-import {User} from "../../models/index.js";
+import {Internal, User} from "../../models/index.js";
 import sanitizeBody from "../../middleware/sanitizeBody.js";
 import logger from "../../startup/logger.js";
 
@@ -12,16 +12,29 @@ router.get("/users/me", authenticate, async (req, res) => {
 });
 
 router.post("/users", sanitizeBody, async (req, res, next) => {
-  const {role} = req.sanitizedBody;
+  const {role, schoolId, ...data} = req.sanitizedBody;
   if (role === "super" || role === "admin" || role === "dean") {
     res.status(404).send({message: "No access to create users with this role"});  
   } else {
   try {
-    new User(req.sanitizedBody)
+    const internalUser = await Internal.findOne({schoolId: schoolId})
+
+    if (!internalUser || internalUser.role !== role) {
+      res.status(404).send({message: "User not found"})
+    } else {
+    new User({
+      firstName: internalUser.firstName,
+      lastName: internalUser.lastName,
+      schoolId: internalUser.schoolId,
+      school: internalUser.school,
+      role: internalUser.role,
+      ...data
+    })
     .save()
     .then((newUser) =>
       res.status(201).send({ message: "New user created", data: newUser })
     )
+    }
   } catch (err) {
     logger.error(err)
     next(err)

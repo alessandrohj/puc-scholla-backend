@@ -44,8 +44,12 @@ const schema = new mongoose.Schema({
   },
   school: {
     type: mongoose.Schema.Types.ObjectId, ref: 'School',
-    required: false,
+    required: true,
   },
+  schoolId: {
+    type: mongoose.Schema.Types.ObjectId, ref: 'Internal',
+    required: true,
+},
 },
 {
   timestamps: true
