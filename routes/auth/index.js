@@ -3,6 +3,7 @@ import express from "express";
 import {Internal, User} from "../../models/index.js";
 import sanitizeBody from "../../middleware/sanitizeBody.js";
 import logger from "../../startup/logger.js";
+import handleErrors from "../../middleware/handleErrors.js";
 
 const router = express.Router();
 
@@ -11,7 +12,7 @@ router.get("/users/me", authenticate, async (req, res) => {
    res.status(200).send({data: user})
 });
 
-router.post("/users", sanitizeBody, async (req, res, next) => {
+router.post("/users", sanitizeBody, async (req, res) => {
   const {role, schoolId, school, ...data} = req.sanitizedBody;
   if (role === "super" || role === "admin" || role === "dean") {
     res.status(404).send({message: "No access to create users with this role"});  
@@ -20,7 +21,7 @@ router.post("/users", sanitizeBody, async (req, res, next) => {
     const internalUser = await Internal.findOne({school: school, schoolId: schoolId}).populate('school').populate('schoolId');
 
     if (!internalUser || internalUser.role !== role) {
-      res.status(404).send({message: "User not found"})
+      res.status(400).send({message: "User not found"})
     } else {
     new User({
       firstName: internalUser.firstName,
@@ -37,7 +38,7 @@ router.post("/users", sanitizeBody, async (req, res, next) => {
     }
   } catch (err) {
     logger.error(err)
-    next(err)
+    handleErrors(err);
   }
 }
 });

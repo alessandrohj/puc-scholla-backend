@@ -1,12 +1,3 @@
-const formatValidationError = function (errors) {
-  return Object.values(errors).map((err) => ({
-    status: "400",
-    title: "Validation Error",
-    description: err.message,
-    source: { pointer: `/data/attributes/${err.path}`, value: err.value },
-  }));
-};
-
 const formatServerError = function (err) {
   return [
     {
@@ -17,7 +8,16 @@ const formatServerError = function (err) {
   ];
 };
 
-export default function handleError(err, req, res, next) {
+const formatValidationError = function (errors) {
+  return Object.values(errors).map((err) => ({
+    status: "400",
+    title: "Validation Error",
+    description: err.message,
+    source: { pointer: `/data/attributes/${err.path}`, value: err.value },
+  }));
+};
+
+export default function handleErrors(err, req, res, next) {
   const isValidationError = err?.name === "ValidationError";
   const code = isValidationError ? 400 : err.code || 500;
 
@@ -26,6 +26,6 @@ export default function handleError(err, req, res, next) {
   if (code === 400) payload = formatValidationError(err.errors);
 
   if (code === 500) payload = formatServerError(err);
-
+  
   res.status(code).send({ errors: payload });
 }
