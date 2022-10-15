@@ -4,7 +4,6 @@ services:
     image: scholla
     container_name: scholla
     environment:
-      API_JWTKEY: yyfn320as27pundlhu9ns4qd87udyi
       API_PORT: 80
       NODE_ENV: 'stage'
     ports:
