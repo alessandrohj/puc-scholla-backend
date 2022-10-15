@@ -3,6 +3,7 @@ import morgan from "morgan";
 import cors from 'cors'
 import helmet from 'helmet'
 import sanitizeMongo from "express-mongo-sanitize";
+import compression from "compression";
 import logger from "./startup/logger.js";
 import authRouter from "./routes/auth/index.js";
 import classRouter from "./routes/class.js";
@@ -24,6 +25,7 @@ app.use(cors())
 app.use(helmet())
 app.use(express.json());
 app.use(sanitizeMongo());
+app.use(compression());
 
 app.get("/", (req, res) => {
   res.send({ data: { healthStatus: "Running" } });
