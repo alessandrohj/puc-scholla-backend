@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
+import config from "config";
 
-const jwtPrivateKey = "mySuperSecretKey"; //TODO: transform it into env variable
+const jwtPrivateKey = config.get('jwt.secretKey');
 
 const parseToken = function (headerValue) {
   if (headerValue) {

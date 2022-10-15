@@ -2,7 +2,8 @@
   "type": "module",
   "scripts": {
     "start": "NODE_ENV=production PORT=433 node server.js",
-    "dev": "NODE_ENV=dev PORT=3000 nodemon server.js",
+    "dev": "NODE_ENV=dev PORT=3000 APP_JWTKEY=mySuperSeretKey nodemon server.js",
+    "stage": "NODE_ENV=stage APP_JWTKEY=mySuperSecretKey nodemon server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
