@@ -1,6 +1,8 @@
 {
     "db": {
       "scheme": "mongodb+srv",
+      "username": "APP_DBUSER",
+      "password": "APP_DBPASSWORD",
       "port": "80",
       "host": "cluster0.qqdlfjq.mongodb.net",
       "authSource": "myFirstDatabase",

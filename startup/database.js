@@ -5,18 +5,16 @@ import config from 'config'
 const log = logger.child({module: 'connectDB'})
 
 export default async function connectDatabase () {
-    const {scheme, host, port, name, authSource} = config.get('db')
-    const username = config.util.getEnv('APP_DBUSER')
-    const password = config.util.getEnv('APP_DBPASSWORD')
+    const {scheme, host, port, name, authSource, username, password} = config.get('db')
     const credentials = username && password ? `${username}:${password}@` : ''
-  
     let connectionString = `${scheme}://${credentials}${host}`
   
     if (scheme === 'mongodb') {
       connectionString += `:${port}/${name}?authSource=${authSource}`
     } else {
-      connectionString += `/${authSource}?retryWrites=true&w=majority`
+      connectionString += `/?retryWrites=true&w=majority`
     }
+    console.log(connectionString)
     
     try {
       await mongoose.connect(
