@@ -3,9 +3,11 @@ import validator from "validator";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import uniqueValidator from "mongoose-unique-validator";
+import config from "config";
 
-const saltRounds = 14;
-const jwtPrivateKey = "mySuperSecretKey";
+const saltRounds = config.get('jwt.saltRounds');
+const jwtPrivateKey = config.get('jwt.secretKey');
+// const jwtPrivateKey = "mySuperSecretKey";
 //TODO: transform it into env variable
 
 const schema = new mongoose.Schema({

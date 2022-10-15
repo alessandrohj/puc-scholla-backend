@@ -2,20 +2,30 @@ import mongoose from "mongoose";
 import config from "config";
 import logger from "../startup/logger.js";
 
-const log = logger.child({module: 'connectDB'})
+const log = logger.child({ module: "connectDB" });
 
 export default async function database() {
-  const db = config.get("db");
+  const { scheme, host, port, name, username, password, authSource } =
+    config.get("db");
 
-  await mongoose
-    .connect(`mongodb://${db.host}:${db.port}/${db.dbName}`, {
+  const credentials = username && password ? `${username}:${password}@` : "";
+
+  let connectionString = `${scheme}://${credentials}${host}`;
+
+  if (scheme === "mongodb") {
+    connectionString += `:${port}/${name}?authSource=${authSource}`;
+  } else {
+    connectionString += `/${authSource}?retryWrites=true&w=majority`;
+  }
+
+  try {
+    await mongoose.connect(connectionString, {
       useNewUrlParser: true,
-    })
-    .then(() => {
-      log.info("Connected to MongoDB");
-    })
-    .catch((err) => {
-      log.error("Problem connecting to MongoDB.", err.message);
-      process.exit(1);
+      dbName: name,
     });
+    log.info(`Connected to MongoDB @ ${connectionString}`);
+  } catch (err) {
+    log.error("Problem connecting to MongoDB.", err);
+    process.exit(1);
+  }
 }
