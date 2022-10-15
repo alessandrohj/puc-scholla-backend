@@ -3,6 +3,7 @@ import validator from "validator";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import config from "config";
+import uniqueValidator from "mongoose-unique-validator";
 
 const saltRounds = config.get('jwt.saltRounds');
 const jwtPrivateKey = config.get('jwt.secretKey');
@@ -43,11 +44,11 @@ const schema = new mongoose.Schema({
   },
   school: {
     type: mongoose.Schema.Types.ObjectId, ref: 'School',
-    required: false,
+    required: true,
   },
   schoolId: {
     type: mongoose.Schema.Types.ObjectId, ref: 'Internal',
-    required: false,
+    required: true,
 },
 },
 {
@@ -87,19 +88,23 @@ schema.pre("save", async function (next) {
   this.password = await bcrypt.hash(this.password, saltRounds);
 });
 
-// schema.pre("validate", async function(next) {
-//   const schoolUser = await School.findById(this.school._id).findOne({schoolId: this.schoolId})
-//   if (!schoolUser)  return 'Invalid school id';
-//   next()
-
-// })
-
 schema.methods.toJSON = function () {
   const obj = this.toObject();
   delete obj.password;
   delete obj.__v;
   return obj;
 };
+
+schema.plugin(uniqueValidator, {
+  message: function (props) {
+    if (props.path === "email") {
+      return `The email address ${props.value} is already registered`;
+    } else {
+      return `The ${props.path} must be unique. ${props.path} is already in use.`;
+    }
+  },
+});
+
 
 const Model = mongoose.model("User", schema);
 
