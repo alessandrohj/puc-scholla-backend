@@ -1,0 +1,13 @@
+{
+    "name": "scholla",
+    "db": {
+      "scheme": "mongodb",
+      "host": "localhost",
+      "port": "27017",
+      "dbName": "scholla"
+    },
+    "jwt": {
+      "saltRounds": 14,
+      "secretKey": "APP_JWTKEY"
+    }
+  }
