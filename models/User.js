@@ -48,7 +48,7 @@ const schema = new mongoose.Schema({
   },
   schoolId: {
     type: mongoose.Schema.Types.ObjectId, ref: 'Internal',
-    required: true,
+    required: this.role !== 'dean' || this.id !== 'super' ? true : false,
 },
 },
 {

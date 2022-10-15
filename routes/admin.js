@@ -38,6 +38,7 @@ router.post("/users", sanitizeBody, authenticate, async (req, res, next) => {
       )
     } catch (err) {
       logger.error(err)
+      res.status(400).send({ message: err.message })
       next(err)
     }
   }
