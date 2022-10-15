@@ -3,7 +3,7 @@
       "scheme": "mongodb+srv",
       "port": "80",
       "host": "cluster0.qqdlfjq.mongodb.net",
-      "authSource": "test",
-      "name": "scholla-db"
+      "authSource": "myFirstDatabase",
+      "name": "scholla"
     }
   }

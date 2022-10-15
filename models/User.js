@@ -2,7 +2,6 @@ import mongoose from "mongoose";
 import validator from "validator";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
-import uniqueValidator from "mongoose-unique-validator";
 import config from "config";
 
 const saltRounds = config.get('jwt.saltRounds');
@@ -44,11 +43,11 @@ const schema = new mongoose.Schema({
   },
   school: {
     type: mongoose.Schema.Types.ObjectId, ref: 'School',
-    required: true,
+    required: false,
   },
   schoolId: {
     type: mongoose.Schema.Types.ObjectId, ref: 'Internal',
-    required: true,
+    required: false,
 },
 },
 {
@@ -101,16 +100,6 @@ schema.methods.toJSON = function () {
   delete obj.__v;
   return obj;
 };
-
-schema.plugin(uniqueValidator, {
-  message: function (props) {
-    if (props.path === "email") {
-      return `The email address ${props.value} is already registered`;
-    } else {
-      return `The ${props.path} must be unique. ${props.path} is already in use.`;
-    }
-  },
-});
 
 const Model = mongoose.model("User", schema);
 
