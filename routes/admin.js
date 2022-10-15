@@ -42,6 +42,7 @@ router.post("/users", sanitizeBody, authenticate, async (req, res, next) => {
       next(err)
     }
   }
+  
   });
 
   router.get("/users/:email", authenticate, async (req, res) => {
