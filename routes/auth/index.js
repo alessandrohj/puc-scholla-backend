@@ -23,14 +23,14 @@ router.post("/users", sanitizeBody, async (req, res) => {
     if (!internalUser || internalUser.role !== role) {
       res.status(400).send({message: "User not found"})
     } else {
-    new User(
+    new User({
       firstName: internalUser.firstName,
       lastName: internalUser.lastName,
       schoolId: internalUser.id,
       school: internalUser.school,
       role: internalUser.role,
       ...data
-    )
+    })
     .save()
     .then((newUser) =>
       res.status(201).send({ message: "New user created", data: newUser })
