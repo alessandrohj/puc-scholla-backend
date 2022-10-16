@@ -1,8 +1,4 @@
-import authenticate from '../middleware/auth.js';
 import express from 'express';
-import logger from '../startup/logger.js';
-import sanitizeBody from '../middleware/sanitizeBody.js';
-import handleError from "../middleware/handleErrors.js";
 import { User, School } from '../models/index.js';
 
 

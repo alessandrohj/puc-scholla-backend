@@ -3,7 +3,7 @@ import express from "express";
 import { Internal, User } from "../models/index.js";
 import sanitizeBody from "../middleware/sanitizeBody.js";
 import logger from "../startup/logger.js";
-import handleError from "../middleware/handleErrors.js";
+// import handleError from "../middleware/handleErrors.js";
 
 const router = express.Router();
 
@@ -74,7 +74,7 @@ router.get("/:role", authenticate, async (req, res) => {
       res.status(200).send({ data: users });
     } catch (err) {
       logger.error(err)
-      handleError(err)
+      // handleError(err)
       // next(err)
     }
 });
@@ -91,14 +91,14 @@ router.get("/:id", authenticate, async (req, res) => {
     res.status(200).send({ status: "Request completed", data: internalUser });
   } catch (err) {
     logger.error(err);
-    handleError(err);
+    // handleError(err);
   }
 });
 
 router.delete("/:id", authenticate, async (req, res) => {
   const { hasAccess } = await User.canCreateClass(req.user._id);
   if (!hasAccess) {
-    handleError("Unauthorized access");
+    // handleError("Unauthorized access");
   }
   try {
     const document = await Internal.findByIdAndDelete(req.params.id);
@@ -110,7 +110,7 @@ router.delete("/:id", authenticate, async (req, res) => {
     });
   } catch (err) {
     logger.error(err);
-    handleError(err);
+    // handleError(err);
   }
 });
 
@@ -119,7 +119,7 @@ const update =
   async (req, res) => {
     const { hasAccess } = await User.canCreateClass(req.user._id);
     if (!hasAccess) {
-      handleError("Unauthorized access");
+      // handleError("Unauthorized access");
     }
     try {
       const document = await Internal.findByIdAndUpdate(
@@ -134,7 +134,7 @@ const update =
       if (!document) throw new ResourceNotFoundException("User not found");
       res.status(200).send({ message: "User updated", data: document });
     } catch (err) {
-      handleError(req, res);
+      // handleError(req, res);
     }
   };
 router.put("/:id", authenticate, sanitizeBody, update(true));

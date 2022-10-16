@@ -14,7 +14,6 @@ export default async function connectDatabase () {
     } else {
       connectionString += `/?retryWrites=true&w=majority`
     }
-    console.log(connectionString)
     
     try {
       await mongoose.connect(

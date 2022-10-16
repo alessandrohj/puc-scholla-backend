@@ -2,7 +2,7 @@ import authenticate from "./../middleware/auth.js";
 import express from "express";
 import logger from "../startup/logger.js";
 import sanitizeBody from "../middleware/sanitizeBody.js";
-import handleError from "../middleware/handleErrors.js";
+// import handleError from "../middleware/handleErrors.js";
 import { User, School } from "../models/index.js";
 
 const router = express.Router();
@@ -92,7 +92,7 @@ router.post("/users", sanitizeBody, authenticate, async (req, res, next) => {
         res.status(201).send({ message: "New school created", data: newSchool });
       } catch (err) {
         logger.error(err);
-        handleError(err);
+        // handleError(err);
       }
      });
 
@@ -100,7 +100,7 @@ router.post("/users", sanitizeBody, authenticate, async (req, res, next) => {
     router.delete("/school/:id", authenticate, async (req, res) => {
       const { hasAccess } = await User.hasTotalAccess(req.user._id);
       if (!hasAccess) {
-        handleError("Unauthorized access");
+        // handleError("Unauthorized access");
       }
       try {
         const document = await School.findByIdAndDelete(req.params.id);
@@ -114,7 +114,7 @@ router.post("/users", sanitizeBody, authenticate, async (req, res, next) => {
           });
       } catch (err) {
         logger.error(err);
-        handleError(err);
+        // handleError(err);
       }
     });
     
@@ -124,7 +124,7 @@ router.post("/users", sanitizeBody, authenticate, async (req, res, next) => {
     async (req, res) => {
       const { hasAccess } = await User.hasTotalAccess(req.user._id);
       if (!hasAccess) {
-        handleError("Unauthorized access");
+        // handleError("Unauthorized access");
       }
       try {
         const document = await School.findByIdAndUpdate(
@@ -139,7 +139,7 @@ router.post("/users", sanitizeBody, authenticate, async (req, res, next) => {
         if (!document) throw new ResourceNotFoundException("School not found");
         res.status(200).send({ message: "School updated", data: document });
       } catch (err) {
-        handleError(req, res);
+        // handleError(req, res);
       }
     };
   router.put("/school/:id", authenticate, sanitizeBody, update(true));

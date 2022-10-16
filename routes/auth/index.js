@@ -3,7 +3,6 @@ import express from "express";
 import {Internal, User} from "../../models/index.js";
 import sanitizeBody from "../../middleware/sanitizeBody.js";
 import logger from "../../startup/logger.js";
-import handleErrors from "../../middleware/handleErrors.js";
 
 const router = express.Router();
 
@@ -19,15 +18,17 @@ router.post("/users", sanitizeBody, async (req, res) => {
   } else {
   try {
     const internalUser = await Internal.findOne({school: school, schoolId: schoolId}).populate('school').populate('schoolId');
+    console.log(data)
 
     if (!internalUser || internalUser.role !== role) {
       res.status(400).send({message: "User not found"})
     } else {
+      console.log(internalUser)
     new User({
       firstName: internalUser.firstName,
       lastName: internalUser.lastName,
       schoolId: internalUser.id,
-      school: internalUser.school,
+      school: internalUser.school._id,
       role: internalUser.role,
       ...data
     })
@@ -38,7 +39,7 @@ router.post("/users", sanitizeBody, async (req, res) => {
     }
   } catch (err) {
     logger.error(err)
-    handleErrors(err);
+    res.status(400).send({ message: err.message })
   }
 }
 });
