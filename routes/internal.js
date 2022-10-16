@@ -58,7 +58,7 @@ router.get("/all", authenticate, async (req, res) => {
           "User not associated with any school. Please contact your school administrator.",
       });
   }
-  const users = await Internal.find({ school: school });
+  const users = await Internal.find({ school: school }).populate("school");
   res.status(200).send({ data: users });
 }); 
 
