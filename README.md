@@ -4,7 +4,7 @@
 Scholla is a PWA that allows professors and parents to set goals and rewards for students to motivate them to do their homework and get good grades. It was built using React.js, Node.js, Express, and MongoDB. And the design was made using Figma, following all the best practices for accessibility and usability.
 
 #### Stack
-Frontend: React, Javascript, Sass, Vite
+Frontend: React, Javascript, Sass, Vite\
 Backend: Node.js, Express, JWT, MongoDB
 
 
