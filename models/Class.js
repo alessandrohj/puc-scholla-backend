@@ -17,6 +17,19 @@ const schema = new mongoose.Schema(
         ref: "Student",
       },
     ],
+    school: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "School",
+      required: true,
+    },
+    year: {
+      type: Number,
+      required: true,
+    },
+    term: {
+      type: mongoose.Schema.Types.Mixed,
+      required: false
+    },
     professor: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Professor",
