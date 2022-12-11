@@ -74,6 +74,36 @@ router.post("/users", sanitizeBody, authenticate, async (req, res, next) => {
       });
     }});
 
+    router.get("/users/:query", authenticate, async (req, res) => {
+      const { hasAccess } = await User.hasTotalAccess(req.user._id);
+      if (!hasAccess) {
+        res.status(404).send({ message: "No access" });
+      } else {
+        const { query } = req.params;
+        await User.find({ $or: [{ email: {"$regex": query, "$options": "i"} }, { name: {"$regex": query, "$options": "i"} }] }).populate('school').then((users) => {
+          if (!users) {
+            res.status(404).send({ message: "No users found" });
+          } else {
+            res.status(200).send({ data: users });
+          }
+        });
+      }});
+
+      router.delete("/users/:email", authenticate, async (req, res) => {
+        const { hasAccess } = await User.hasTotalAccess(req.user._id);
+        if (!hasAccess) {
+          res.status(404).send({ message: "No access" });
+        } else {
+          const { email } = req.params;
+          await User.findOneAndDelete({ email: {"$regex": email, "$options": "i"} }).then((user) => {
+            if (!user) {
+              res.status(404).send({ message: "User not found" });
+            } else {
+              res.status(200).send({ message: "User deleted", data: user });
+            }
+          });
+        }});
+
 
   router.patch("/users/:email", sanitizeBody, authenticate, async (req, res, next) => {
     const { hasAccess } = await User.hasTotalAccess(req.user._id);
@@ -90,7 +120,9 @@ router.post("/users", sanitizeBody, authenticate, async (req, res, next) => {
         logger.error(err)
         next(err)
       }
-    }});
+    }
+  });
+
 
     // School
     router.post('/school', authenticate, sanitizeBody, async (req, res) => {
