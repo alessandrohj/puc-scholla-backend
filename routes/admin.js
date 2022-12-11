@@ -51,7 +51,7 @@ router.post("/users", sanitizeBody, authenticate, async (req, res, next) => {
       res.status(404).send({ message: "No access" });
     } else {
       await User.find().populate('school').then((users) => {
-        if (users.length === 0) {
+        if (!users) {
           res.status(404).send({ message: "No users found" });
         } else {
           res.status(200).send({ data: users });
@@ -59,34 +59,38 @@ router.post("/users", sanitizeBody, authenticate, async (req, res, next) => {
       });
     }});
 
-  router.get("/users/:email", authenticate, async (req, res) => {
-    const { hasAccess } = await User.hasTotalAccess(req.user._id);
-    if (!hasAccess) {
-      res.status(404).send({ message: "No access" });
-    } else {
-      const { email } = req.params;
-      await User.findOne({ email: {"$regex": email, "$options": "i"} }).populate('school').then((user) => {
-        if (!user) {
-          res.status(404).send({ message: "User not found" });
-        } else {
-          res.status(200).send({ data: user });
-        }
-      });
-    }});
+  // router.get("/users/:email", authenticate, async (req, res) => {
+  //   const { hasAccess } = await User.hasTotalAccess(req.user._id);
+  //   if (!hasAccess) {
+  //     res.status(404).send({ message: "No access" });
+  //   } else {
+  //     const { email } = req.params;
+  //     await User.findOne({ email: {"$regex": email, "$options": "i"} }).populate('school').then((user) => {
+  //       if (!user) {
+  //         res.status(404).send({ message: "User not found" });
+  //       } else {
+  //         res.status(200).send({ data: user });
+  //       }
+  //     });
+  //   }});
 
     router.get("/users/:query", authenticate, async (req, res) => {
       const { hasAccess } = await User.hasTotalAccess(req.user._id);
       if (!hasAccess) {
         res.status(404).send({ message: "No access" });
       } else {
-        const { query } = req.params;
-        await User.find({ $or: [{ email: {"$regex": query, "$options": "i"} }, { name: {"$regex": query, "$options": "i"} }] }).populate('school').then((users) => {
+        await User.find().populate('school').then((users) => {
           if (!users) {
             res.status(404).send({ message: "No users found" });
           } else {
-            res.status(200).send({ data: users });
+            const { query } = req.params;
+            const filteredUsers = users.filter((user) => {
+              return user.firstName.toLowerCase().includes(query.toLowerCase()) || user.email.toLowerCase().includes(query.toLowerCase()) || user.lastName.toLowerCase().includes(query.toLowerCase())
+            })
+            res.status(200).send({ data: filteredUsers });
           }
-        });
+        }
+        );
       }});
 
       router.delete("/users/:email", authenticate, async (req, res) => {
