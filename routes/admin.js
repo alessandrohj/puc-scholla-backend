@@ -14,7 +14,7 @@ const router = express.Router();
 //   } else {
 //       next()
 //   }
-// } 
+// }
 
 const checkIfUserHasAccess = (user)  => async (req, res, next) => {
   const { hasAccess } = await User.hasTotalAccess(user._id);
@@ -26,6 +26,7 @@ const checkIfUserHasAccess = (user)  => async (req, res, next) => {
 };
 
 router.post("/users", sanitizeBody, authenticate, async (req, res, next) => {
+  logger.error(req.user)
     const { hasAccess } = await User.hasTotalAccess(req.user._id);
     if (!hasAccess) {
       res.status(404).send({ message: "No access to create admins" });
@@ -42,8 +43,21 @@ router.post("/users", sanitizeBody, authenticate, async (req, res, next) => {
       next(err)
     }
   }
-  
   });
+
+  router.get("/users", authenticate, async (req, res) => {
+    const { hasAccess } = await User.hasTotalAccess(req.user._id);
+    if (!hasAccess) {
+      res.status(404).send({ message: "No access" });
+    } else {
+      await User.find().populate('school').then((users) => {
+        if (users.length === 0) {
+          res.status(404).send({ message: "No users found" });
+        } else {
+          res.status(200).send({ data: users });
+        }
+      });
+    }});
 
   router.get("/users/:email", authenticate, async (req, res) => {
     const { hasAccess } = await User.hasTotalAccess(req.user._id);
@@ -52,7 +66,7 @@ router.post("/users", sanitizeBody, authenticate, async (req, res, next) => {
     } else {
       const { email } = req.params;
       await User.findOne({ email: {"$regex": email, "$options": "i"} }).populate('school').then((user) => {
-        if (user.length === 0) {
+        if (!user) {
           res.status(404).send({ message: "User not found" });
         } else {
           res.status(200).send({ data: user });
@@ -60,13 +74,13 @@ router.post("/users", sanitizeBody, authenticate, async (req, res, next) => {
       });
     }});
 
-  
+
   router.patch("/users/:email", sanitizeBody, authenticate, async (req, res, next) => {
     const { hasAccess } = await User.hasTotalAccess(req.user._id);
     if (!hasAccess) {
       res.status(404).send({ message: "No access." });
     } else {
-      
+
       try {
         const {email} = req.params;
         const {...data } = req.sanitizedBody;
@@ -105,7 +119,7 @@ router.post("/users", sanitizeBody, authenticate, async (req, res, next) => {
       try {
         const document = await School.findByIdAndDelete(req.params.id);
         if (!document) throw new ResourceNotFoundException("Resource not found");
-    
+
         res
           .status(200)
           .send({
@@ -117,8 +131,8 @@ router.post("/users", sanitizeBody, authenticate, async (req, res, next) => {
         // handleError(err);
       }
     });
-    
-  
+
+
     const update =
     (overwrite = false) =>
     async (req, res) => {
@@ -144,6 +158,6 @@ router.post("/users", sanitizeBody, authenticate, async (req, res, next) => {
     };
   router.put("/school/:id", authenticate, sanitizeBody, update(true));
   router.patch("/school/:id", authenticate, sanitizeBody, update(false));
-  
+
 
     export default router;
