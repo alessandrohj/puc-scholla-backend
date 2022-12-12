@@ -59,21 +59,6 @@ router.post("/users", sanitizeBody, authenticate, async (req, res, next) => {
       });
     }});
 
-  // router.get("/users/:email", authenticate, async (req, res) => {
-  //   const { hasAccess } = await User.hasTotalAccess(req.user._id);
-  //   if (!hasAccess) {
-  //     res.status(404).send({ message: "No access" });
-  //   } else {
-  //     const { email } = req.params;
-  //     await User.findOne({ email: {"$regex": email, "$options": "i"} }).populate('school').then((user) => {
-  //       if (!user) {
-  //         res.status(404).send({ message: "User not found" });
-  //       } else {
-  //         res.status(200).send({ data: user });
-  //       }
-  //     });
-  //   }});
-
     router.get("/users/:query", authenticate, async (req, res) => {
       const { hasAccess } = await User.hasTotalAccess(req.user._id);
       if (!hasAccess) {
@@ -85,12 +70,31 @@ router.post("/users", sanitizeBody, authenticate, async (req, res, next) => {
           } else {
             const { query } = req.params;
             const filteredUsers = users.filter((user) => {
-              return user.firstName.toLowerCase().includes(query.toLowerCase()) || user.email.toLowerCase().includes(query.toLowerCase()) || user.lastName.toLowerCase().includes(query.toLowerCase())
+              if (user.role === "admin" || user.role === "super" || user.role === "dean"){
+                return user.firstName.toLowerCase().includes(query.toLowerCase()) || user.email.toLowerCase().includes(query.toLowerCase()) || user.lastName.toLowerCase().includes(query.toLowerCase())
+              }
             })
             res.status(200).send({ data: filteredUsers });
           }
         }
         );
+      }});
+
+      router.get("/users/details/:email", authenticate, async (req, res) => {
+        const { hasAccess } = await User.hasTotalAccess(req.user._id);
+        if (!hasAccess) {
+          res.status(404).send({ message: "No access" });
+        } else {
+          const { email } = req.params;
+          await
+          User.findOne({ email: {"$regex": email, "$options": "i"} }).populate('school').then((user) => {
+            if (!user) {
+              res.status(404).send({ message: "User not found" });
+            } else {
+              res.status(200).send({ data: user });
+            }
+          }
+        )
       }});
 
       router.delete("/users/:email", authenticate, async (req, res) => {
