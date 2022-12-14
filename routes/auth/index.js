@@ -14,7 +14,7 @@ router.get("/users/me", authenticate, async (req, res) => {
 router.post("/users", sanitizeBody, async (req, res) => {
   const {role, schoolId, school, email, password} = req.sanitizedBody;
   if (role === "super" || role === "admin" || role === "dean") {
-    res.status(404).send({message: "No access to create users with this role"});  
+    res.status(404).send({message: "No access to create users with this role"});
   } else {
   try {
     const internalUser = await Internal.findOne({school: school, schoolId: schoolId}).populate('school').populate('schoolId');
@@ -65,11 +65,12 @@ router.post("/tokens", sanitizeBody, async (req, res) => {
 router.patch("/users/me", authenticate, sanitizeBody, async (req, res) => {
   const {email, password} = req.sanitizedBody
   const doc = await User.findById(req.user._id)
-  doc.password = password
+  if(email) doc.email = email
+  if(password) doc.password = password
   doc.save().then((savedDoc) => {
-    res.status(200).send({message: 'Password successfully changed', user: savedDoc})
+    res.status(200).send({message: 'Account successfully updated', data: savedDoc})
   }).catch(err => {
-    res.status(400).send({title: "Error", message: 'Password was not changed.', err})
+    res.status(400).send({title: "Error", message: 'Account was not changed.', err})
   })
 
 })
