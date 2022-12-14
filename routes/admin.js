@@ -7,24 +7,6 @@ import { User, School } from "../models/index.js";
 
 const router = express.Router();
 
-// const checkifUserHasAccess = async (req, res, next) => {
-//   const { hasAccess } = await User.canCreateClass(req.user._id);
-//   if (!hasAccess) {
-//     return res.status(400).send({ message: "User doe not have access" });
-//   } else {
-//       next()
-//   }
-// }
-
-const checkIfUserHasAccess = (user)  => async (req, res, next) => {
-  const { hasAccess } = await User.hasTotalAccess(user._id);
-  if (!hasAccess) {
-    return res.status(400).send({ message: "User doe not have access" });
-  } else {
-      next()
-  }
-};
-
 router.post("/users", sanitizeBody, authenticate, async (req, res, next) => {
   logger.error(req.user)
     const { hasAccess } = await User.hasTotalAccess(req.user._id);
@@ -58,6 +40,27 @@ router.post("/users", sanitizeBody, authenticate, async (req, res, next) => {
         }
       });
     }});
+
+    router.get("/users/role/:role/:name", authenticate, async (req, res) => {
+      const { hasAccess } = await User.hasTotalAccess(req.user._id);
+      if (!hasAccess) {
+        res.status(404).send({ message: "No access" });
+      } else {
+        await User.find().populate('school').then((users) => {
+          if (!users) {
+            res.status(404).send({ message: "No users found" });
+          } else {
+            const { role, name } = req.params;
+            const filteredUsers = users.filter((user) => {
+              if (user.role === role){
+                return user.firstName.toLowerCase().includes(name.toLowerCase()) || user.email.toLowerCase().includes(name.toLowerCase()) || user.lastName.toLowerCase().includes(name.toLowerCase())
+              }
+            })
+            res.status(200).send({ data: filteredUsers });
+          }
+        }
+        );
+      }});
 
     router.get("/users/:query", authenticate, async (req, res) => {
       const { hasAccess } = await User.hasTotalAccess(req.user._id);
