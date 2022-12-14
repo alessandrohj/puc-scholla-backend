@@ -8,7 +8,7 @@ const schema = new mongoose.Schema({
   dean: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
-    required: false,
+    required: true,
   },
   admins: [
     {
