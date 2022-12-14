@@ -1,5 +1,6 @@
 import express from 'express';
 import { User, School } from '../models/index.js';
+import authenticate from '../middleware/auth.js';
 
 
 const router = express.Router();
@@ -18,11 +19,15 @@ router.get("/list", async (req, res) => {
   })
 
 
-router.get("/:id", async (req, res) => {
+router.get("/:id", authenticate, async (req, res) => {
+  const {hasAccess} = await User.hasTotalAccess(req.user._id);
+  if (!hasAccess) {
+    res.status(404).send({ message: "No access" });
+  } else {
     const { id } = req.params;
-      await School.findById(id).then((school) =>
+    await School.findOne({ _id: id }).populate('admins').populate('professors').populate('dean').then((school) =>
       res.status(200).send({ data: school })
-    );
+    )};
   })
 
 export default router;
