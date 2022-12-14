@@ -176,31 +176,51 @@ router.post("/users", sanitizeBody, authenticate, async (req, res, next) => {
     });
 
 
-    const update =
-    (overwrite = false) =>
-    async (req, res) => {
-      const { hasAccess } = await User.hasTotalAccess(req.user._id);
-      if (!hasAccess) {
-        // handleError("Unauthorized access");
-      }
-      try {
-        const document = await School.findByIdAndUpdate(
-          req.params.id,
-          req.sanitizedBody,
-          {
-            new: true,
-            overwrite,
-            runValidators: true,
-          }
-        );
-        if (!document) throw new ResourceNotFoundException("School not found");
-        res.status(200).send({ message: "School updated", data: document });
-      } catch (err) {
-        // handleError(req, res);
-      }
-    };
-  router.put("/school/:id", authenticate, sanitizeBody, update(true));
-  router.patch("/school/:id", authenticate, sanitizeBody, update(false));
-
+    // const update =
+    // (overwrite = false) =>
+    // async (req, res) => {
+    //   const { hasAccess } = await User.hasTotalAccess(req.user._id);
+    //   if (!hasAccess) {
+    //     res.status(404).send({ message: "No access" });
+    //   }
+    //   try {
+    //     const document = await School.findByIdAndUpdate(
+    //       req.params.id,
+    //       req.sanitizedBody,
+    //       {
+    //         new: true,
+    //         overwrite,
+    //         runValidators: true,
+    //       }
+    //     );
+    //     if (!document) throw new ResourceNotFoundException("School not found");
+    //     res.status(200).send({ message: "School updated", data: document });
+    //   } catch (err) {
+    //     // handleError(req, res);
+    //   }
+    // };
+  router.patch("/school/:id", authenticate, sanitizeBody, async (req, res) => {
+    const { hasAccess } = await User.hasTotalAccess(req.user._id);
+    if (!hasAccess) {
+      res.status(404).send({ message: "No access" });
+    }
+   const {id} = req.params;
+    const {dean, name} = req.sanitizedBody;
+    const doc = await School.findById(id)
+    logger.info(doc)
+    if (dean) {
+      doc.dean = dean;
+    }
+    if (name) {
+      doc.name = name;
+    }
+    await doc.save().then(savedDoc => {
+      res.status(200).send({ message: "School updated", data: savedDoc });
+    }).catch(err => {
+      logger.error(err)
+      res.status(500).send({ message: "Error updating school", data: err });
+    }
+    )
+  });
 
     export default router;

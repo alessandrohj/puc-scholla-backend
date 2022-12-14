@@ -19,7 +19,7 @@ router.get("/list", async (req, res) => {
   })
 
 
-router.get("/:id", authenticate, async (req, res) => {
+router.get("/admin/:id", authenticate, async (req, res) => {
   const {hasAccess} = await User.hasTotalAccess(req.user._id);
   if (!hasAccess) {
     res.status(404).send({ message: "No access" });
